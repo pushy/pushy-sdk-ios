@@ -75,7 +75,7 @@ public class Pushy : NSObject {
     }
     
     // Called automatically when APNs has assigned the device a unique token
-    public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    @objc public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Convert token to string
         let deviceTokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)}).lowercased()
         
@@ -343,14 +343,14 @@ public class Pushy : NSObject {
     }
     
     // APNs failed to register the device for push notifications
-    public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    @objc public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         // Call the registration handler, if defined (pass empty string as token)
         Pushy.shared?.registrationHandler?(error, "")
         
     }
     
     // Device received notification
-    public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+    @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // Call the notification handler, if defined
         Pushy.shared?.notificationHandler?(userInfo, completionHandler)
     }

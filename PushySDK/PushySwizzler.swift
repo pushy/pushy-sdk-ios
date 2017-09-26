@@ -20,12 +20,12 @@ class PushySwizzler {
         let swizzleMethod = class_getInstanceMethod(Pushy.self, selector)
         
         // Attempt to add our swizzled method to the class if it doesn't exist yet
-        let didAddMethod = class_addMethod(className, selector, method_getImplementation(swizzleMethod), method_getTypeEncoding(swizzleMethod))
+        let didAddMethod = class_addMethod(className, selector, method_getImplementation(swizzleMethod!), method_getTypeEncoding(swizzleMethod!))
         
         // If we failed, method already defined
         if !didAddMethod {
             // Swizzle its implementation
-            method_exchangeImplementations(originalMethod, swizzleMethod)
+            method_exchangeImplementations(originalMethod!, swizzleMethod!)
         }
     }
 }
