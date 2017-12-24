@@ -12,6 +12,7 @@ public class PushySettings {
     static var pushyToken = "_pushyToken"
     static var apnsToken = "_pushyApnsToken"
     static var pushyTokenAuth = "_pushyTokenAuth"
+    static var pushyEnterpriseApi = "_pushyEnterpriseApi"
     
     // Cross-reinstall key-value store
     static var keychain = Keychain()
@@ -50,7 +51,7 @@ public class PushySettings {
         return userDefaultsValue
     }
     
-    class func setString(_ key: String, _ value: String) {
+    class func setString(_ key: String, _ value: String?) {
         // Store it in UserDefaults
         UserDefaults.standard.set(value, forKey: key)
         

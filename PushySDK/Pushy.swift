@@ -144,7 +144,7 @@ public class Pushy : NSObject {
         let params: [String:Any] = ["app": appBundleID, "platform": "ios", "pushToken": apnsToken, "pushEnvironment": pushEnvironment ]
         
         // Execute post request
-        PushyHTTP.postAsync(PushyConfig.apiBaseUrl + "/register", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
+        PushyHTTP.postAsync(self.getApiEndpoint() + "/register", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
                 self.registrationHandler?(err, "")
@@ -185,7 +185,7 @@ public class Pushy : NSObject {
         let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "pushToken": apnsToken, "pushEnvironment": pushEnvironment]
         
         // Execute post request
-        PushyHTTP.postAsync(PushyConfig.apiBaseUrl + "/devices/token", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
+        PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/token", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
                 self.registrationHandler?(err, "")
@@ -226,7 +226,7 @@ public class Pushy : NSObject {
         let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth]
         
         // Execute post request
-        PushyHTTP.postAsync(PushyConfig.apiBaseUrl + "/devices/auth", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
+        PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/auth", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
                 // Did we get json["error"] response exception?
@@ -274,7 +274,7 @@ public class Pushy : NSObject {
         let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "topics": topics]
         
         // Execute post request
-        PushyHTTP.postAsync(PushyConfig.apiBaseUrl + "/devices/subscribe", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
+        PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/subscribe", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
                 // Throw network error and stop execution
@@ -317,7 +317,7 @@ public class Pushy : NSObject {
         let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "topics": topics]
         
         // Execute post request
-        PushyHTTP.postAsync(PushyConfig.apiBaseUrl + "/devices/unsubscribe", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
+        PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/unsubscribe", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
                 // Throw network error and stop execution
@@ -340,6 +340,45 @@ public class Pushy : NSObject {
             // Unsubscribe success
             handler(nil)
         }
+    }
+    
+    // Support for Pushy Enterprise
+    public func setEnterpriseConfig(apiEndpoint: String) {
+        // Mutable variable
+        var endpoint = apiEndpoint
+        
+        // Strip trailing slash
+        if endpoint.hasSuffix("/") {
+            endpoint = String(endpoint.prefix(endpoint.count - 1))
+        }
+
+        // Fetch previous enterprise endpoint
+        let previousEndpoint = PushySettings.getString(PushySettings.pushyEnterpriseApi)
+        
+        // Check if this is a new API endpoint URL
+        if endpoint != previousEndpoint {
+            // Unregister device
+            PushySettings.setString(PushySettings.apnsToken, nil)
+            PushySettings.setString(PushySettings.pushyToken, nil)
+            PushySettings.setString(PushySettings.pushyTokenAuth, nil)
+        }
+        
+        // Persist enterprise API endpoint
+        PushySettings.setString(PushySettings.pushyEnterpriseApi, endpoint)
+    }
+    
+    // API endpoint getter function
+    public func getApiEndpoint() -> String {
+        // Check for a configured enterprise API endpoint
+        let enterpriseApiEndpoint = PushySettings.getString(PushySettings.pushyEnterpriseApi)
+        
+        // Default to public Pushy API if missing
+        if enterpriseApiEndpoint == nil {
+            return PushyConfig.apiBaseUrl
+        }
+        
+        // Return enterprise endpoint
+        return enterpriseApiEndpoint!
     }
     
     // APNs failed to register the device for push notifications
