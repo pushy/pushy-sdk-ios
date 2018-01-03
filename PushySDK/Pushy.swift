@@ -15,7 +15,7 @@ public class Pushy : NSObject {
     private var appDelegate: UIApplicationDelegate
     private var application: UIApplication
     private var registrationHandler: ((Error?, String) -> Void)?
-    private var notificationHandler: (([AnyHashable : Any], ((UIBackgroundFetchResult) -> Void)) -> Void)?
+    private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     
     public init(_ application: UIApplication) {
         // Store application and app delegate for later
@@ -32,7 +32,7 @@ public class Pushy : NSObject {
     }
     
     // Define a notification handler to invoke when device receives a notification
-    public func setNotificationHandler(_ notificationHandler: @escaping ([AnyHashable : Any], ((UIBackgroundFetchResult) -> Void)) -> Void) {
+    public func setNotificationHandler(_ notificationHandler: @escaping ([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void) {
         // Save the handler for later
         self.notificationHandler = notificationHandler
     }
