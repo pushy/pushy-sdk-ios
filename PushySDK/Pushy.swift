@@ -343,9 +343,14 @@ public class Pushy : NSObject {
     }
     
     // Support for Pushy Enterprise
-    public func setEnterpriseConfig(apiEndpoint: String) {
+    public func setEnterpriseConfig(apiEndpoint: String?) {
+        // If nil, clear persisted Pushy Enterprise API endpoint
+        if (apiEndpoint == nil) {
+            return PushySettings.setString(PushySettings.pushyEnterpriseApi, nil)
+        }
+        
         // Mutable variable
-        var endpoint = apiEndpoint
+        var endpoint = apiEndpoint!
         
         // Strip trailing slash
         if endpoint.hasSuffix("/") {
