@@ -372,6 +372,15 @@ public class Pushy : NSObject {
         PushySettings.setString(PushySettings.pushyEnterpriseApi, endpoint)
     }
     
+    // Device registration check
+    public func isRegistered() -> Bool {
+        // Attempt to fetch persisted Pushy token
+        let token = PushySettings.getString(PushySettings.pushyToken)
+        
+        // Check for existance of non-nil token
+        return token != nil;
+    }
+    
     // API endpoint getter function
     public func getApiEndpoint() -> String {
         // Check for a configured enterprise API endpoint
