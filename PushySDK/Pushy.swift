@@ -141,7 +141,7 @@ public class Pushy : NSObject {
         let pushEnvironment = PushyEnvironment.getEnvironmentString()
         
         // Prepare /register API post data
-        let params: [String:Any] = ["app": appBundleID, "platform": "ios", "pushToken": apnsToken, "pushEnvironment": pushEnvironment ]
+        let params: [String:Any] = ["app": appBundleID, "platform": "ios", "sdk": PushyConfig.sdkVersionCode, "pushToken": apnsToken, "pushEnvironment": pushEnvironment ]
         
         // Execute post request
         PushyHTTP.postAsync(self.getApiEndpoint() + "/register", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
@@ -223,7 +223,7 @@ public class Pushy : NSObject {
         }
         
         // Prepare request params
-        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth]
+        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "sdk": PushyConfig.sdkVersionCode]
         
         // Execute post request
         PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/auth", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
