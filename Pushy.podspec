@@ -9,7 +9,7 @@ s.author            = { 'Pushy' => 'contact@pushy.me' }
 s.license           = { :type => 'Apache-2.0', :file => 'LICENSE' }
 
 s.platform          = :ios
-s.source            = s.source = { :git => 'https://github.com/pushy-me/pushy-sdk-ios.git', :tag => s.version }
+s.source            = { :git => 'https://github.com/pushy-me/pushy-sdk-ios.git', :tag => s.version }
 s.source_files      = 'PushySDK/*.swift'
 
 s.ios.deployment_target = '8.0'
