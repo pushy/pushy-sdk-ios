@@ -17,7 +17,7 @@ public class Pushy : NSObject {
     private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     
-    public init(_ application: UIApplication) {
+    @objc public init(_ application: UIApplication) {
         // Store application and app delegate for later
         self.application = application
         self.appDelegate = application.delegate!
@@ -32,13 +32,13 @@ public class Pushy : NSObject {
     }
     
     // Define a notification handler to invoke when device receives a notification
-    public func setNotificationHandler(_ notificationHandler: @escaping ([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void) {
+    @objc public func setNotificationHandler(_ notificationHandler: @escaping ([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void) {
         // Save the handler for later
         self.notificationHandler = notificationHandler
     }
     
     // Register for push notifications (called from AppDelegate.didFinishLaunchingWithOptions)
-    public func register(_ registrationHandler: @escaping (Error?, String) -> Void) {
+    @objc public func register(_ registrationHandler: @escaping (Error?, String) -> Void) {
         // Save the handler for later
         self.registrationHandler = registrationHandler
         
@@ -58,17 +58,17 @@ public class Pushy : NSObject {
             UNUserNotificationCenter.current().requestAuthorization(options:[.badge, .alert, .sound]){ (granted, error) in }
             application.registerForRemoteNotifications()
         }
-        // iOS 9 support
+            // iOS 9 support
         else if #available(iOS 9, *) {
             UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
             UIApplication.shared.registerForRemoteNotifications()
         }
-        // iOS 8 support
+            // iOS 8 support
         else if #available(iOS 8, *) {
             UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
             UIApplication.shared.registerForRemoteNotifications()
         }
-        // iOS 7 support
+            // iOS 7 support
         else {
             application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
         }
@@ -101,13 +101,13 @@ public class Pushy : NSObject {
                 self.registrationHandler?(error, "")
                 return
             }
-
+            
             // Are credentials invalid?
             if !credentialsValid {
                 // Create a new device using the token
                 return self.createNewDevice(apnsToken)
             }
-        
+            
             // Get previously-stored APNs token
             if let previousApnsToken = PushySettings.getString(PushySettings.apnsToken) {
                 // Token changed?
@@ -141,7 +141,7 @@ public class Pushy : NSObject {
         let pushEnvironment = PushyEnvironment.getEnvironmentString()
         
         // Prepare /register API post data
-        let params: [String:Any] = ["app": appBundleID, "platform": "ios", "sdk": PushyConfig.sdkVersionCode, "pushToken": apnsToken, "pushEnvironment": pushEnvironment ]
+        let params: [String:Any] = ["app": appBundleID, "platform": "ios", "pushToken": apnsToken, "pushEnvironment": pushEnvironment ]
         
         // Execute post request
         PushyHTTP.postAsync(self.getApiEndpoint() + "/register", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
@@ -180,7 +180,7 @@ public class Pushy : NSObject {
         
         // Determine if this is a sandbox or production APNs token
         let pushEnvironment = PushyEnvironment.getEnvironmentString()
-
+        
         // Prepare request params
         let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "pushToken": apnsToken, "pushEnvironment": pushEnvironment]
         
@@ -223,7 +223,7 @@ public class Pushy : NSObject {
         }
         
         // Prepare request params
-        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "sdk": PushyConfig.sdkVersionCode]
+        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth]
         
         // Execute post request
         PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/auth", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
@@ -258,13 +258,13 @@ public class Pushy : NSObject {
     }
     
     // Subscribe to single topic
-    public func subscribe(topic: String, handler: @escaping (Error?) -> Void) {
+    @objc public func subscribe(topic: String, handler: @escaping (Error?) -> Void) {
         // Call multi-topic subscribe function
         subscribe(topics: [topic], handler: handler)
     }
     
     // Subscribe to multiple topics
-    public func subscribe(topics: [String], handler: @escaping (Error?) -> Void) {
+    @objc public func subscribe(topics: [String], handler: @escaping (Error?) -> Void) {
         // Load device token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
             return handler(PushyRegistrationException.Error("Failed to load the device credentials."))
@@ -301,13 +301,13 @@ public class Pushy : NSObject {
     
     
     // Unsubscribe from single topic
-    public func unsubscribe(topic: String, handler: @escaping (Error?) -> Void) {
+    @objc public func unsubscribe(topic: String, handler: @escaping (Error?) -> Void) {
         // Call multi-topic unsubscribe function
         unsubscribe(topics: [topic], handler: handler)
     }
     
     // Unsubscribe from multiple topics
-    public func unsubscribe(topics: [String], handler: @escaping (Error?) -> Void) {
+    @objc public func unsubscribe(topics: [String], handler: @escaping (Error?) -> Void) {
         // Load device token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
             return handler(PushyRegistrationException.Error("Failed to load the device credentials."))
@@ -343,7 +343,7 @@ public class Pushy : NSObject {
     }
     
     // Support for Pushy Enterprise
-    public func setEnterpriseConfig(apiEndpoint: String?) {
+    @objc public func setEnterpriseConfig(apiEndpoint: String?) {
         // If nil, clear persisted Pushy Enterprise API endpoint
         if (apiEndpoint == nil) {
             return PushySettings.setString(PushySettings.pushyEnterpriseApi, nil)
@@ -356,7 +356,7 @@ public class Pushy : NSObject {
         if endpoint.hasSuffix("/") {
             endpoint = String(endpoint.prefix(endpoint.count - 1))
         }
-
+        
         // Fetch previous enterprise endpoint
         let previousEndpoint = PushySettings.getString(PushySettings.pushyEnterpriseApi)
         
@@ -373,7 +373,7 @@ public class Pushy : NSObject {
     }
     
     // Device registration check
-    public func isRegistered() -> Bool {
+    @objc public func isRegistered() -> Bool {
         // Attempt to fetch persisted Pushy token
         let token = PushySettings.getString(PushySettings.pushyToken)
         
@@ -382,7 +382,7 @@ public class Pushy : NSObject {
     }
     
     // API endpoint getter function
-    public func getApiEndpoint() -> String {
+    @objc public func getApiEndpoint() -> String {
         // Check for a configured enterprise API endpoint
         let enterpriseApiEndpoint = PushySettings.getString(PushySettings.pushyEnterpriseApi)
         
