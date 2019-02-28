@@ -16,6 +16,7 @@ public class Pushy : NSObject {
     private var application: UIApplication
     private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
+    private var notificationOptions: Any?
     
     @objc public init(_ application: UIApplication) {
         // Store application and app delegate for later
@@ -37,6 +38,12 @@ public class Pushy : NSObject {
         self.notificationHandler = notificationHandler
     }
     
+    // Make it possible to pass in custom iOS 10+ notification options ([.badge, .sound, .alert, ...])
+    @objc public func setCustomNotificationOptions(_ options:Any) {
+        // Save the options for later
+        self.notificationOptions = options
+    }
+    
     // Register for push notifications (called from AppDelegate.didFinishLaunchingWithOptions)
     @objc public func register(_ registrationHandler: @escaping (Error?, String) -> Void) {
         // Save the handler for later
@@ -53,9 +60,18 @@ public class Pushy : NSObject {
     
     // Backwards-compatible method for requesting an APNs token from Apple
     private func requestAPNsToken(_ application: UIApplication) {
-        // iOS 10 support
+        // iOS 10+ support
         if #available(iOS 10, *) {
-            UNUserNotificationCenter.current().requestAuthorization(options:[.badge, .alert, .sound]){ (granted, error) in }
+            // Default iOS 10+ options
+            var options: UNAuthorizationOptions = [UNAuthorizationOptions.badge, UNAuthorizationOptions.alert, UNAuthorizationOptions.sound]
+            
+            // Custom options passed in?
+            if let customOptions = notificationOptions {
+                options = customOptions as! UNAuthorizationOptions
+            }
+            
+            // Register for notifications
+            UNUserNotificationCenter.current().requestAuthorization(options:options){ (granted, error) in }
             application.registerForRemoteNotifications()
         }
             // iOS 9 support
