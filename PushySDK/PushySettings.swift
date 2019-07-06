@@ -12,6 +12,7 @@ public class PushySettings {
     static var pushyToken = "_pushyToken"
     static var apnsToken = "_pushyApnsToken"
     static var pushyTokenAuth = "_pushyTokenAuth"
+    static var pushyAppId = "_pushyAppId"
     static var pushyEnterpriseApi = "_pushyEnterpriseApi"
     
     // Cross-reinstall key-value store
