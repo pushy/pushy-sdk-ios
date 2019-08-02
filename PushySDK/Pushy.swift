@@ -36,6 +36,10 @@ public class Pushy : NSObject {
     @objc public func setNotificationHandler(_ notificationHandler: @escaping ([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void) {
         // Save the handler for later
         self.notificationHandler = notificationHandler
+        
+        // Swizzle didReceiveRemoteNotification methods
+        PushySwizzler.swizzleMethodImplementations(self.appDelegate.superclass!, "application:didReceiveRemoteNotification:")
+        PushySwizzler.swizzleMethodImplementations(self.appDelegate.superclass!, "application:didReceiveRemoteNotification:fetchCompletionHandler:")
     }
     
     // Make it possible to pass in custom iOS 10+ notification options ([.badge, .sound, .alert, ...])
@@ -52,7 +56,6 @@ public class Pushy : NSObject {
         // Swizzle methods (will call method with same selector in Pushy class)
         PushySwizzler.swizzleMethodImplementations(self.appDelegate.superclass!, "application:didRegisterForRemoteNotificationsWithDeviceToken:")
         PushySwizzler.swizzleMethodImplementations(self.appDelegate.superclass!, "application:didFailToRegisterForRemoteNotificationsWithError:")
-        PushySwizzler.swizzleMethodImplementations(self.appDelegate.superclass!, "application:didReceiveRemoteNotification:fetchCompletionHandler:")
         
         // Request an APNs token from Apple
         requestAPNsToken(self.application)
@@ -461,7 +464,13 @@ public class Pushy : NSObject {
         
     }
     
-    // Device received notification
+    // Device received notification (legacy callback)
+    @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
+        // Call the notification handler, if defined
+        Pushy.shared?.notificationHandler?(userInfo, {(UIBackgroundFetchResult) in})
+    }
+    
+    // Device received notification (new callback with completionHandler)
     @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // Call the notification handler, if defined
         Pushy.shared?.notificationHandler?(userInfo, completionHandler)
