@@ -12,5 +12,6 @@ s.platform          = :ios
 s.source            = { :git => 'https://github.com/pushy-me/pushy-sdk-ios.git', :tag => s.version }
 s.source_files      = 'PushySDK/*.swift'
 
+s.swift_version         = '4.2'
 s.ios.deployment_target = '8.0'
 end
