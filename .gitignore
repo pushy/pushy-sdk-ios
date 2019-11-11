@@ -1,3 +1,5 @@
 DEPLOY
 xcuserdata/
 *.xcuserstate
+.swiftpm
+.DS_Store
