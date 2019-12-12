@@ -139,8 +139,9 @@ public class Pushy : NSObject {
                 self.registrationHandler?(nil, token!)
             }
             else {
-                // Failed to load APNs token from UserDefaults
-                self.registrationHandler?(PushyRegistrationException.Error("Failed to load persisted APNs token."), "")
+                // Failed to load previously-stored APNs token,
+                // ensure Pushy backend has the most up-to-date token
+                return self.updateApnsToken(apnsToken)
             }
         })
     }
