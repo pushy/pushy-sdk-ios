@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E40309A22479949C00D05906 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = E403099B2479949C00D05906 /* Result.swift */; };
+		E40309A32479949C00D05906 /* UDPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E403099C2479949C00D05906 /* UDPClient.swift */; };
+		E40309A42479949C00D05906 /* TCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E403099D2479949C00D05906 /* TCPClient.swift */; };
+		E40309A52479949C00D05906 /* ytcpsocket.c in Sources */ = {isa = PBXBuildFile; fileRef = E403099E2479949C00D05906 /* ytcpsocket.c */; };
+		E40309A62479949C00D05906 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = E403099F2479949C00D05906 /* Socket.swift */; };
+		E40309A72479949C00D05906 /* yudpsocket.c in Sources */ = {isa = PBXBuildFile; fileRef = E40309A02479949C00D05906 /* yudpsocket.c */; };
+		E40309A82479949C00D05906 /* SwiftSocket.h in Headers */ = {isa = PBXBuildFile; fileRef = E40309A12479949C00D05906 /* SwiftSocket.h */; };
+		E40309AB24799E8400D05906 /* PushyAPNs.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40309AA24799E8400D05906 /* PushyAPNs.swift */; };
 		E44EDA9C1F0906D70003871C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EDA9B1F0906D70003871C /* AppDelegate.swift */; };
 		E44EDA9E1F0906D70003871C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E44EDA9D1F0906D70003871C /* ViewController.swift */; };
 		E44EDAA11F0906D70003871C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EDA9F1F0906D70003871C /* Main.storyboard */; };
@@ -53,6 +61,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E403099B2479949C00D05906 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		E403099C2479949C00D05906 /* UDPClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UDPClient.swift; sourceTree = "<group>"; };
+		E403099D2479949C00D05906 /* TCPClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TCPClient.swift; sourceTree = "<group>"; };
+		E403099E2479949C00D05906 /* ytcpsocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ytcpsocket.c; sourceTree = "<group>"; };
+		E403099F2479949C00D05906 /* Socket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
+		E40309A02479949C00D05906 /* yudpsocket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = yudpsocket.c; sourceTree = "<group>"; };
+		E40309A12479949C00D05906 /* SwiftSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftSocket.h; sourceTree = "<group>"; };
+		E40309AA24799E8400D05906 /* PushyAPNs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushyAPNs.swift; sourceTree = "<group>"; };
 		E41115031F08F7FD006459C1 /* PushySDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = PushySDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E41115071F08F7FD006459C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E44EDA991F0906D70003871C /* Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -96,6 +112,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E403099A2479947300D05906 /* SwiftSocket */ = {
+			isa = PBXGroup;
+			children = (
+				E403099B2479949C00D05906 /* Result.swift */,
+				E403099F2479949C00D05906 /* Socket.swift */,
+				E40309A12479949C00D05906 /* SwiftSocket.h */,
+				E403099D2479949C00D05906 /* TCPClient.swift */,
+				E403099C2479949C00D05906 /* UDPClient.swift */,
+				E403099E2479949C00D05906 /* ytcpsocket.c */,
+				E40309A02479949C00D05906 /* yudpsocket.c */,
+			);
+			path = SwiftSocket;
+			sourceTree = "<group>";
+		};
 		E41114F91F08F7FD006459C1 = {
 			isa = PBXGroup;
 			children = (
@@ -117,8 +147,10 @@
 		E41115051F08F7FD006459C1 /* PushySDK */ = {
 			isa = PBXGroup;
 			children = (
+				E403099A2479947300D05906 /* SwiftSocket */,
 				E4B875DF1F08FD3B006D8DFD /* Exceptions */,
 				E4B875AE1F08F855006D8DFD /* Pushy.swift */,
+				E40309AA24799E8400D05906 /* PushyAPNs.swift */,
 				E4B875AF1F08F855006D8DFD /* PushyConfig.swift */,
 				E4B875B01F08F855006D8DFD /* PushyEnvironment.swift */,
 				E4B875B11F08F855006D8DFD /* PushyHTTP.swift */,
@@ -163,6 +195,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E40309A82479949C00D05906 /* SwiftSocket.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,6 +261,9 @@
 						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 0;
+							};
 							com.apple.Push = {
 								enabled = 1;
 							};
@@ -281,17 +317,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E40309A62479949C00D05906 /* Socket.swift in Sources */,
+				E40309A42479949C00D05906 /* TCPClient.swift in Sources */,
 				E4B875BF1F08F855006D8DFD /* PushyPubSubException.swift in Sources */,
 				E4B875B91F08F855006D8DFD /* Pushy.swift in Sources */,
 				E4B875C21F08F855006D8DFD /* PushySettings.swift in Sources */,
+				E40309A52479949C00D05906 /* ytcpsocket.c in Sources */,
 				E4B875BA1F08F855006D8DFD /* PushyConfig.swift in Sources */,
 				E4B875C31F08F855006D8DFD /* PushySwizzler.swift in Sources */,
 				E4B875C11F08F855006D8DFD /* PushyResponseException.swift in Sources */,
+				E40309A72479949C00D05906 /* yudpsocket.c in Sources */,
+				E40309A22479949C00D05906 /* Result.swift in Sources */,
 				E4B875BE1F08F855006D8DFD /* PushyNetworkException.swift in Sources */,
 				E4B875C01F08F855006D8DFD /* PushyRegistrationException.swift in Sources */,
 				E4B875BB1F08F855006D8DFD /* PushyEnvironment.swift in Sources */,
 				E4B875BD1F08F855006D8DFD /* PushyKeychain.swift in Sources */,
 				E4B875BC1F08F855006D8DFD /* PushyHTTP.swift in Sources */,
+				E40309A32479949C00D05906 /* UDPClient.swift in Sources */,
+				E40309AB24799E8400D05906 /* PushyAPNs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -504,7 +547,7 @@
 				INFOPLIST_FILE = Demo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = me.pushy.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = me.pushy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -520,7 +563,7 @@
 				INFOPLIST_FILE = Demo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = me.pushy.demo;
+				PRODUCT_BUNDLE_IDENTIFIER = me.pushy;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
