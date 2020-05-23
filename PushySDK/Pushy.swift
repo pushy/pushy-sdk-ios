@@ -57,8 +57,16 @@ public class Pushy : NSObject {
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didRegisterForRemoteNotificationsWithDeviceToken:")
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didFailToRegisterForRemoteNotificationsWithError:")
         
-        // Request an APNs token from Apple
-        requestAPNsToken(self.application)
+        // Validate APNs connectivity before attempting to register
+        PushyAPNs.checkConnectivity({ (error) in
+            // Handle connectivity errors
+            if error != nil {
+                return registrationHandler(error, "")
+            }
+            
+            // Request an APNs token from Apple
+            self.requestAPNsToken(self.application)
+        })
     }
     
     // Backwards-compatible method for requesting an APNs token from Apple
@@ -441,7 +449,7 @@ public class Pushy : NSObject {
         let token = PushySettings.getString(PushySettings.pushyToken)
         
         // Check for existance of non-nil token
-        return token != nil;
+        return token != nil
     }
     
     // API endpoint getter function
