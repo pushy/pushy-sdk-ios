@@ -3,6 +3,8 @@
 
 import PackageDescription
 
+let cSwiftSocketPaths = ["SwiftSocket/ytcpsocket.c", "SwiftSocket/yudpsocket.c"]
+
 let package = Package(
   name: "Pushy",
   platforms: [
@@ -16,7 +18,15 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "Pushy"
+      name: "Pushy",
+      dependencies: ["CSwiftSocket"],
+      path: "PushySDK",
+      exclude: cSwiftSocketPaths
+    ),
+    .target(
+      name: "CSwiftSocket",
+      path: "PushySDK",
+      sources: cSwiftSocketPaths
     )
   ]
 )
