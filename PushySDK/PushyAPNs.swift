@@ -28,20 +28,26 @@ class PushyAPNs : NSObject {
         // Try to establish TCP connection to APNs on port 5223
         let client = TCPClient(address: String(randomCourierServer) + apnsCourierHostname, port: apnsCourierPort)
         
-        // Try connecting with a timeout
-        switch client.connect(timeout: apnsCourierTimeoutSeconds) {
-        case .success:
-            // Close client
-            client.close()
-            
-            // Invoke callback with nil error
-            callback(nil)
-        case .failure(let error):
-            // Close client
-            client.close()
-            
-            // Invoke callback with connection error
-            callback(PushyRegistrationException.Error("APNs server *\(apnsCourierHostname) is unreachable on port \(apnsCourierPort) due to lack of Internet connection or restrictive firewall: \(error)"))
+        // Try connecting with a timeout (background thread)
+        DispatchQueue.global(qos: .background).async {
+            switch client.connect(timeout: apnsCourierTimeoutSeconds) {
+            case .success:
+                // Close client
+                client.close()
+                
+                // Invoke callback with nil error (main thread)
+                DispatchQueue.main.async {
+                    callback(nil)
+                }
+            case .failure(let error):
+                // Close client
+                client.close()
+                
+                // Invoke callback with connection error (main thread)
+                DispatchQueue.main.async {
+                    callback(PushyRegistrationException.Error("Internet connection error: APNs server *\(apnsCourierHostname) is unreachable on port \(apnsCourierPort) due to lack of Internet connection or restrictive firewall: \(error)"))
+                }
+            }
         }
     }
 }
