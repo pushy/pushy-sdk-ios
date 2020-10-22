@@ -103,6 +103,12 @@ public class Pushy : NSObject {
     
     // Called automatically when APNs has assigned the device a unique token
     @objc public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Check if the user denied the push request dialog
+        if UIApplication.shared.currentUserNotificationSettings?.types == [] {
+            Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications in the iOS settings."), "")
+            return
+        }
+        
         // Convert token to string
         let deviceTokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)}).lowercased()
         
