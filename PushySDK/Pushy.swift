@@ -445,6 +445,16 @@ public class Pushy : NSObject {
     
     // Device registration check
     @objc public func isRegistered() -> Bool {
+        // Check if APNs is registered
+        if !UIApplication.shared.isRegisteredForRemoteNotifications {
+            return false
+        }
+        
+        // Check if user turned off iOS notifications or denied push dialog
+        if UIApplication.shared.currentUserNotificationSettings?.types == [] {
+            return false
+        }
+        
         // Attempt to fetch persisted Pushy token
         let token = PushySettings.getString(PushySettings.pushyToken)
         
@@ -470,7 +480,6 @@ public class Pushy : NSObject {
     @objc public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         // Call the registration handler, if defined (pass empty string as token)
         Pushy.shared?.registrationHandler?(error, "")
-        
     }
     
     // Device received notification (legacy callback)
