@@ -57,6 +57,12 @@ public class Pushy : NSObject {
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didRegisterForRemoteNotificationsWithDeviceToken:")
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didFailToRegisterForRemoteNotificationsWithError:")
         
+        // Check if the user previously denied the push request dialog (and Pushy is registered)
+        if PushySettings.getString(PushySettings.pushyToken, userDefaultsOnly: true) != nil && UIApplication.shared.currentUserNotificationSettings?.types == [] {
+            Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
+            return
+        }
+        
         // Validate APNs connectivity before attempting to register
         PushyAPNs.checkConnectivity({ (error) in
             // Handle connectivity errors
@@ -103,12 +109,6 @@ public class Pushy : NSObject {
     
     // Called automatically when APNs has assigned the device a unique token
     @objc public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        // Check if the user denied the push request dialog
-        if UIApplication.shared.currentUserNotificationSettings?.types == [] {
-            Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
-            return
-        }
-        
         // Convert token to string
         let deviceTokenString = deviceToken.reduce("", {$0 + String(format: "%02X", $1)}).lowercased()
         
@@ -461,11 +461,13 @@ public class Pushy : NSObject {
             return false
         }
         
-        // Attempt to fetch persisted Pushy token
-        let token = PushySettings.getString(PushySettings.pushyToken)
+        // Check if Pushy device token is assigned to current app instance
+        if (PushySettings.getString(PushySettings.pushyToken, userDefaultsOnly: true) == nil) {
+            return false
+        }
         
-        // Check for existance of non-nil token
-        return token != nil
+        // Fallback to true
+        return true
     }
     
     // API endpoint getter function

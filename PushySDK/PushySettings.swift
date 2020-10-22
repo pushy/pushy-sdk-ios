@@ -18,7 +18,7 @@ public class PushySettings {
     // Cross-reinstall key-value store
     static var keychain = Keychain()
     
-    class func getString(_ key: String) -> String? {
+    class func getString(_ key: String, userDefaultsOnly: Bool = false) -> String? {
         // Fetch value from Keychain
         let keychainValue = keychain[key]
         
@@ -40,7 +40,7 @@ public class PushySettings {
         }
         
         // No UserDefaults value but Keychain has one?
-        if (userDefaultsValue == nil && keychainValue != nil) {
+        if (userDefaultsValue == nil && keychainValue != nil && !userDefaultsOnly) {
             // Synchronize it to UserDefaults for improved persistence
             UserDefaults.standard.set(keychainValue, forKey: key)
             
