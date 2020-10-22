@@ -45,7 +45,7 @@ class PushyAPNs : NSObject {
                 
                 // Invoke callback with connection error (main thread)
                 DispatchQueue.main.async {
-                    callback(PushyRegistrationException.Error("Internet connection error: APNs server *\(apnsCourierHostname) is unreachable on port \(apnsCourierPort) due to lack of Internet connection or restrictive firewall: \(error)"))
+                    callback(PushyRegistrationException.Error("Internet connection error: APNs server *\(apnsCourierHostname) is unreachable on port \(apnsCourierPort) due to lack of Internet connection or restrictive firewall: \(error)", "NETWORK_FIREWALL_ERROR"))
                 }
             }
         }

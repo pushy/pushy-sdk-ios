@@ -105,7 +105,7 @@ public class Pushy : NSObject {
     @objc public func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         // Check if the user denied the push request dialog
         if UIApplication.shared.currentUserNotificationSettings?.types == [] {
-            Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications in the iOS settings."), "")
+            Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
             return
         }
         
@@ -167,7 +167,7 @@ public class Pushy : NSObject {
         
         // Bundle ID fetch failed?
         guard let appBundleId = bundleId else {
-            registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy."), "")
+            registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
             return
         }
         
@@ -199,7 +199,7 @@ public class Pushy : NSObject {
             
             // Unwrap response json
             guard let json = response else {
-                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered."), "")
+                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered.", "INVALID_JSON_RESPONSE"), "")
                 return
             }
             
@@ -232,7 +232,7 @@ public class Pushy : NSObject {
         
         // Bundle ID fetch failed?
         guard let appBundleId = bundleId else {
-            self.registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy."), "")
+            self.registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
             return
         }
         
@@ -249,7 +249,7 @@ public class Pushy : NSObject {
             
             // Unwrap json
             guard let json = response else {
-                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered when updating the push token."), "")
+                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered when updating the push token.", "INVALID_JSON_RESPONSE"), "")
                 return
             }
             
@@ -258,7 +258,7 @@ public class Pushy : NSObject {
             
             // Verify success
             if !success {
-                self.registrationHandler?(PushyRegistrationException.Error("An unsuccessful response was encountered when updating the push token."), "")
+                self.registrationHandler?(PushyRegistrationException.Error("An unsuccessful response was encountered when updating the push token.", "UNSUCCESSFUL_RESPONSE"), "")
                 return
             }
             
@@ -274,7 +274,7 @@ public class Pushy : NSObject {
     private func validateCredentials(_ resultHandler: @escaping (Error?, Bool) -> Void) {
         // Load device token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
-            return resultHandler(PushyRegistrationException.Error("Failed to load the device credentials."), false)
+            return resultHandler(PushyRegistrationException.Error("Failed to load the device credentials.", "DEVICE_CREDENTIALS_ERROR"), false)
         }
         
         // Prepare request params
@@ -296,7 +296,7 @@ public class Pushy : NSObject {
             
             // Unwrap json
             guard let json = response else {
-                return resultHandler(PushyRegistrationException.Error("An invalid response was encountered when validating device credentials."), false)
+                return resultHandler(PushyRegistrationException.Error("An invalid response was encountered when validating device credentials.", "INVALID_JSON_RESPONSE"), false)
             }
             
             // Get success value
@@ -322,7 +322,7 @@ public class Pushy : NSObject {
     @objc public func subscribe(topics: [String], handler: @escaping (Error?) -> Void) {
         // Load device token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
-            return handler(PushyRegistrationException.Error("Failed to load the device credentials."))
+            return handler(PushyRegistrationException.Error("Failed to load the device credentials.", "DEVICE_CREDENTIALS_ERROR"))
         }
         
         // Prepare request params
@@ -365,7 +365,7 @@ public class Pushy : NSObject {
     @objc public func unsubscribe(topics: [String], handler: @escaping (Error?) -> Void) {
         // Load device token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
-            return handler(PushyRegistrationException.Error("Failed to load the device credentials."))
+            return handler(PushyRegistrationException.Error("Failed to load the device credentials.", "DEVICE_CREDENTIALS_ERROR"))
         }
         
         // Prepare request params
