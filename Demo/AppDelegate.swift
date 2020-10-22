@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         pushy.register({ (error, deviceToken) in
             // Handle registration errors
             if error != nil {
-                return print ("Registration failed: \(error!)")
+                return print ("Registration failed: \(error!.localizedDescription)")
             }
             
             // Print device token to console
