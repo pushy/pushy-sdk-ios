@@ -94,8 +94,10 @@ public class Pushy : NSObject {
                     return
                 }
                 
-                // Register with APNs
-                application.registerForRemoteNotifications()
+                // Back to main thread, register with APNs
+                DispatchQueue.main.async {
+                    application.registerForRemoteNotifications()
+                }
             }
         }
             // iOS 9 support
