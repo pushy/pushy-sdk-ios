@@ -87,9 +87,16 @@ public class Pushy : NSObject {
                 options = customOptions as! UNAuthorizationOptions
             }
             
-            // Register for notifications
-            UNUserNotificationCenter.current().requestAuthorization(options:options){ (granted, error) in }
-            application.registerForRemoteNotifications()
+            // Request authoriztion (show push dialog)
+            UNUserNotificationCenter.current().requestAuthorization(options:options){ (granted, error) in
+                // Show error if user didn't grant permission
+                if !granted { Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
+                    return
+                }
+                
+                // Register with APNs
+                application.registerForRemoteNotifications()
+            }
         }
             // iOS 9 support
         else if #available(iOS 9, *) {
