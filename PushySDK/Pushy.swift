@@ -9,7 +9,7 @@
 import UIKit
 import UserNotifications
 
-public class Pushy : NSObject {
+public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     static var shared: Pushy?
     
     private var appDelegate: UIApplicationDelegate
@@ -40,6 +40,22 @@ public class Pushy : NSObject {
         // Swizzle didReceiveRemoteNotification methods
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didReceiveRemoteNotification:")
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didReceiveRemoteNotification:fetchCompletionHandler:")
+        
+        // In-app notification banner support (iOS 10+, defaults to off)
+        // Set delegate to hook into userNotificationCenter:willPresent:notification callback
+        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
+            UNUserNotificationCenter.current().delegate = self
+        }
+    }
+    
+    // Display in-app notification banners (iOS 10+) and invoke notification handler
+    @available(iOS 10.0, *)
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // Call the notification handler, if defined
+        Pushy.shared?.notificationHandler?(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
+        
+        // Show in-app banner (no sound or badge)
+        completionHandler([.alert])
     }
     
     // Make it possible to pass in custom iOS 10+ notification options ([.badge, .sound, .alert, ...])
@@ -456,6 +472,11 @@ public class Pushy : NSObject {
         else {
             PushySettings.setString(PushySettings.pushyAppId, nil)
         }
+    }
+    
+    // Support for toggling in-app notification banner (defaults to off)
+    @objc public func toggleInAppBanner(_ value: Bool) {
+        PushySettings.setBoolean(PushySettings.pushyInAppBanner, value)
     }
     
     // Device registration check
