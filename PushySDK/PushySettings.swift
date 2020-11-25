@@ -59,4 +59,19 @@ public class PushySettings {
         // Save it in Keychain for improved persistence
         keychain[key] = value
     }
+    
+    class func getBoolean(_ key: String, _ defaultValue: Bool) -> Bool {
+        // Support for default value
+        if (UserDefaults.standard.object(forKey: key) == nil) {
+            return defaultValue
+        }
+        
+        // Fetch value from UserDefaults
+        return UserDefaults.standard.bool(forKey: key)
+    }
+    
+    class func setBoolean(_ key: String, _ value: Bool?) {
+        // Store value in UserDefaults
+        UserDefaults.standard.set(value, forKey: key)
+    }
 }
