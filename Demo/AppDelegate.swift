@@ -30,25 +30,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             // Persist the device token locally and send it to your backend later
             UserDefaults.standard.set(deviceToken, forKey: "pushyToken")
-            
-            // Subscribe the device for PubSub topic(s)
-            pushy.subscribe(topic: "news", handler: { (error) in
-                // Handle errors
-                if error != nil {
-                    return print ("Subscribe failed: \(error!)")
-                }
-                
-                // Subscribe successful
-                print ("Subscribed to topic successfully")
-            })
         })
         
-        // Listen for push notifications
+        // Handle push notifications
         pushy.setNotificationHandler({ (data, completionHandler) in
             // Print notification payload data
             print("Received notification: \(data)")
             
-            // You must call this completion handler when you finish processing
+            // Fallback message containing data payload
+            var message = "\(data)"
+            
+            // Attempt to extract "message" key from APNs payload
+            if let aps = data["aps"] as? [AnyHashable : Any] {
+                if let payloadMessage = aps["alert"] as? String {
+                    message = payloadMessage
+                }
+            }
+            
+            // Display the notification as an alert
+            let alert = UIAlertController(title: "Incoming Notification", message: message, preferredStyle: UIAlertController.Style.alert)
+            
+            // Add an action button
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            
+            // Show the alert dialog
+            self.window?.rootViewController?.present(alert, animated: true, completion: nil)
+            
+            // Reset iOS badge number
+            UIApplication.shared.applicationIconBadgeNumber = 0
+            
+            // Call this completion handler when you finish processing
             // the notification (after fetching background data, if applicable)
             completionHandler(UIBackgroundFetchResult.newData)
         })
