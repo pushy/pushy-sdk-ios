@@ -10,7 +10,7 @@ import UIKit
 import UserNotifications
 
 public class Pushy : NSObject, UNUserNotificationCenterDelegate {
-    static var shared: Pushy?
+    public static var shared: Pushy?
     
     private var appDelegate: UIApplicationDelegate
     private var application: UIApplication
@@ -43,7 +43,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // In-app notification banner support (iOS 10+, defaults to off)
         // Set delegate to hook into userNotificationCenter:willPresent:notification callback
-        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
+        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false), PushySettings.getBoolean(PushySettings.pushyMethodSwizzling, true) {
             UNUserNotificationCenter.current().delegate = self
         }
     }
@@ -477,6 +477,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     // Support for toggling in-app notification banner (defaults to off)
     @objc public func toggleInAppBanner(_ value: Bool) {
         PushySettings.setBoolean(PushySettings.pushyInAppBanner, value)
+    }
+    
+    // Support for toggling AppDelegate method swizzling (defaults to on)
+    @objc public func toggleMethodSwizzling(_ value: Bool) {
+        PushySettings.setBoolean(PushySettings.pushyMethodSwizzling, value)
     }
     
     // Device registration check
