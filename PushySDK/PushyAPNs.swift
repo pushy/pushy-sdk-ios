@@ -29,7 +29,7 @@ class PushyAPNs : NSObject {
         let client = TCPClient(address: String(randomCourierServer) + apnsCourierHostname, port: apnsCourierPort)
         
         // Try connecting with a timeout (background thread)
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .userInitiated).async {
             switch client.connect(timeout: apnsCourierTimeoutSeconds) {
             case .success:
                 // Close client
