@@ -16,6 +16,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     private var application: UIApplication
     private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
+    private var notificationClickListener: (([AnyHashable : Any]) -> Void)?
     private var notificationOptions: Any?
     
     @objc public init(_ application: UIApplication) {
@@ -42,10 +43,16 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didReceiveRemoteNotification:fetchCompletionHandler:")
         
         // In-app notification banner support (iOS 10+, defaults to off)
-        // Set delegate to hook into userNotificationCenter:willPresent:notification callback
+        // Set delegate to hook into userNotificationCenter callbacks
         if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false), PushySettings.getBoolean(PushySettings.pushyMethodSwizzling, true) {
             UNUserNotificationCenter.current().delegate = self
         }
+    }
+    
+    // Define a notification click handler to invoke when user taps a notification
+    @objc public func setNotificationClickListener(_ notificationClickListener: @escaping ([AnyHashable : Any]) -> Void) {
+        // Save the listener for later
+        self.notificationClickListener = notificationClickListener
     }
     
     // Display in-app notification banners (iOS 10+) and invoke notification handler
@@ -56,6 +63,16 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // Show in-app banner (no sound or badge)
         completionHandler([.alert])
+    }
+    
+    // Notification click on in-app banner (iOS 10+), invoke notification click listener
+    @available(iOS 10.0, *)
+    public func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // Call the notification click listener, if defined
+        Pushy.shared?.notificationClickListener?(response.notification.request.content.userInfo)
+        
+        // Finished processing notification
+        completionHandler()
     }
     
     // Make it possible to pass in custom iOS 10+ notification options ([.badge, .sound, .alert, ...])
@@ -527,14 +544,29 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     
     // Device received notification (legacy callback)
     @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
-        // Call the notification handler, if defined
-        Pushy.shared?.notificationHandler?(userInfo, {(UIBackgroundFetchResult) in})
+        // App opened from notification and click listener defined?
+        if (application.applicationState == UIApplication.State.inactive && Pushy.shared?.notificationClickListener != nil) {
+            // Call the notification click listener
+            Pushy.shared?.notificationClickListener?(userInfo)
+        } else {
+            // Call the incoming notification handler
+            Pushy.shared?.notificationHandler?(userInfo, {(UIBackgroundFetchResult) in})
+        }
     }
     
     // Device received notification (new callback with completionHandler)
     @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        // Call the notification handler, if defined
-        Pushy.shared?.notificationHandler?(userInfo, completionHandler)
+        // App opened from notification and click listener defined?
+        if (application.applicationState == UIApplication.State.inactive && Pushy.shared?.notificationClickListener != nil) {
+            // Call the notification click listener
+            Pushy.shared?.notificationClickListener?(userInfo)
+            
+            // Done processing notification
+            completionHandler(UIBackgroundFetchResult.newData)
+        } else {
+            // Call the incoming notification handler
+            Pushy.shared?.notificationHandler?(userInfo, completionHandler)
+        }
     }
 }
 

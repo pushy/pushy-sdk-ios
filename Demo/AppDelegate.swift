@@ -35,36 +35,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UserDefaults.standard.set(deviceToken, forKey: "pushyToken")
         })
         
-        // Handle push notifications
+        // Handle incoming notifications
         pushy.setNotificationHandler({ (data, completionHandler) in
-            // Print notification payload data
+            // Print notification payload
             print("Received notification: \(data)")
             
-            // Fallback message containing data payload
-            var message = "\(data)"
-            
-            // Attempt to extract "message" key from APNs payload
-            if let aps = data["aps"] as? [AnyHashable : Any] {
-                if let payloadMessage = aps["alert"] as? String {
-                    message = payloadMessage
-                }
-            }
-            
-            // Display the notification as an alert
-            let alert = UIAlertController(title: "Incoming Notification", message: message, preferredStyle: UIAlertController.Style.alert)
-            
-            // Add an action button
+            // Show an alert dialog
+            let alert = UIAlertController(title: "Incoming Notification", message: data["message"] as? String, preferredStyle: UIAlertController.Style.alert)
             alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
-            
-            // Show the alert dialog
             self.window?.rootViewController?.present(alert, animated: true, completion: nil)
             
-            // Reset iOS badge number
+            // Reset iOS badge number (and clear all app notifications)
             UIApplication.shared.applicationIconBadgeNumber = 0
             
             // Call this completion handler when you finish processing
-            // the notification (after fetching background data, if applicable)
+            // the notification (after any asynchronous operations, if applicable)
             completionHandler(UIBackgroundFetchResult.newData)
+        })
+        
+        // Handle notification tap event
+        pushy.setNotificationClickListener({ (data) in
+            // Show an alert dialog
+            let alert = UIAlertController(title: "Notification Click", message: data["message"] as? String, preferredStyle: UIAlertController.Style.alert)
+            alert.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: nil))
+            self.window?.rootViewController?.present(alert, animated: true, completion: nil)
+            
+            // Navigate the user to another page or
+            // execute other logic on notification click
         })
         
         // Override point for customization after application launch.
