@@ -18,6 +18,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     private var notificationClickListener: (([AnyHashable : Any]) -> Void)?
     private var notificationOptions: Any?
+    private var ignorePushPermissionDenial: Bool = false
     
     @objc public init(_ application: UIApplication) {
         // Store application and app delegate for later
@@ -91,7 +92,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didFailToRegisterForRemoteNotificationsWithError:")
         
         // Check if the user previously denied the push request dialog (and Pushy is registered)
-        if PushySettings.getString(PushySettings.pushyToken, userDefaultsOnly: true) != nil && UIApplication.shared.currentUserNotificationSettings?.types == [] {
+        if PushySettings.getString(PushySettings.pushyToken, userDefaultsOnly: true) != nil && UIApplication.shared.currentUserNotificationSettings?.types == [] && !self.ignorePushPermissionDenial {
             Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
             return
         }
@@ -120,10 +121,10 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
                 options = customOptions as! UNAuthorizationOptions
             }
             
-            // Request authoriztion (show push dialog)
+            // Request authorization (show push dialog)
             UNUserNotificationCenter.current().requestAuthorization(options:options){ (granted, error) in
                 // Show error if user didn't grant permission
-                if !granted { Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
+                if !granted && !self.ignorePushPermissionDenial { Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
                     return
                 }
                 
@@ -489,6 +490,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         else {
             PushySettings.setString(PushySettings.pushyAppId, nil)
         }
+    }
+    
+    // Support for silent/foreground notifications without push permission consent (defaults to off)
+    @objc public func toggleIgnorePushPermissionDenial(_ value: Bool) {
+        self.ignorePushPermissionDenial = value;
     }
     
     // Support for toggling in-app notification banner (defaults to off)
