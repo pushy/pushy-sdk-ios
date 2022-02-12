@@ -16,6 +16,7 @@ public class PushySettings {
     static var pushyEnterpriseApi = "_pushyEnterpriseApi"
     static var pushyInAppBanner = "_pushyInAppBanner"
     static var pushyMethodSwizzling = "_pushyMethodSwizzling"
+    static var pushyLocalPushConnectivity = "_pushyLocalPushConnectivity"
     
     // Cross-reinstall key-value store
     static var keychain = Keychain()
