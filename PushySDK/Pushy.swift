@@ -60,7 +60,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     @available(iOS 10.0, *)
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Call the notification handler, if defined
-        Pushy.shared?.notificationHandler?(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
+        invokeNotificationHandler(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
         
         // Show in-app banner (no sound or badge)
         completionHandler([.alert])
@@ -440,6 +440,44 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         }
     }
     
+    public func invokeNotificationHandler(_ userInfo: [AnyHashable : Any], _ completionHandler: @escaping ((UIBackgroundFetchResult) -> Void)) {
+        // Avoid invoking handler twice for same payload
+        if (isDuplicateNotification(userInfo)) {
+            return print("Ignoring duplicate notification")
+        }
+        
+        // Call the incoming notification handler
+        Pushy.shared?.notificationHandler?(userInfo, completionHandler)
+    }
+    
+    // Checks whether the notification was already received through a different gateway
+    private func isDuplicateNotification(_ payload: [AnyHashable : Any]) -> Bool {
+        // Skip this check if iOS 14 Local Push Connectivity has not been configured
+        if (!PushySettings.getBoolean(PushySettings.pushyLocalPushConnectivity, false)) {
+            return false
+        }
+        
+        // Unwrap push notification ID
+        guard let pushId = payload["_pushyId"] as? String else {
+            // If it wasn't passed in, we can't check if it was already received
+            return false
+        }
+        
+        // Prepare UserDefaults setting key
+        let key:String = "_pushyIdReceived:" + pushId
+        
+        // Check if this key exists (meaning the push was already received)
+        if PushySettings.getBoolean(key, false) {
+            return true
+        }
+        
+        // If we're here, it's the first time encountering this push notification
+        PushySettings.setBoolean(key, true)
+        
+        // Return false so the notification gets processed
+        return false
+    }
+    
     // Support for Pushy Enterprise
     @objc public func setEnterpriseConfig(apiEndpoint: String?) {
         // If nil, clear persisted Pushy Enterprise API endpoint
@@ -494,7 +532,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     
     // Support for silent/foreground notifications without push permission consent (defaults to off)
     @objc public func toggleIgnorePushPermissionDenial(_ value: Bool) {
-        self.ignorePushPermissionDenial = value;
+        self.ignorePushPermissionDenial = value
     }
     
     // Support for toggling in-app notification banner (defaults to off)
@@ -556,7 +594,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             Pushy.shared?.notificationClickListener?(userInfo)
         } else {
             // Call the incoming notification handler
-            Pushy.shared?.notificationHandler?(userInfo, {(UIBackgroundFetchResult) in})
+            invokeNotificationHandler(userInfo, {(UIBackgroundFetchResult) in})
         }
     }
     
@@ -571,7 +609,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             completionHandler(UIBackgroundFetchResult.newData)
         } else {
             // Call the incoming notification handler
-            Pushy.shared?.notificationHandler?(userInfo, completionHandler)
+            invokeNotificationHandler(userInfo, completionHandler)
         }
     }
 }
