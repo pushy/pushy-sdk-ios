@@ -20,6 +20,7 @@
 		E44EDAA11F0906D70003871C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EDA9F1F0906D70003871C /* Main.storyboard */; };
 		E44EDAA31F0906D70003871C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E44EDAA21F0906D70003871C /* Assets.xcassets */; };
 		E44EDAA61F0906D70003871C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E44EDAA41F0906D70003871C /* LaunchScreen.storyboard */; };
+		E477B3F127B83277001656DF /* PushyMQTT.swift in Sources */ = {isa = PBXBuildFile; fileRef = E477B3F027B83277001656DF /* PushyMQTT.swift */; };
 		E4A758971F0907D400A60583 /* PushySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E41115031F08F7FD006459C1 /* PushySDK.framework */; };
 		E4A758981F0907D400A60583 /* PushySDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E41115031F08F7FD006459C1 /* PushySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E4B875B91F08F855006D8DFD /* Pushy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4B875AE1F08F855006D8DFD /* Pushy.swift */; };
@@ -78,6 +79,7 @@
 		E44EDAA21F0906D70003871C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E44EDAA51F0906D70003871C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E44EDAA71F0906D70003871C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E477B3F027B83277001656DF /* PushyMQTT.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushyMQTT.swift; sourceTree = "<group>"; };
 		E4A758961F0907B500A60583 /* Demo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Demo.entitlements; sourceTree = "<group>"; };
 		E4B875AE1F08F855006D8DFD /* Pushy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pushy.swift; sourceTree = "<group>"; };
 		E4B875AF1F08F855006D8DFD /* PushyConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PushyConfig.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				E4B875AF1F08F855006D8DFD /* PushyConfig.swift */,
 				E4B875B01F08F855006D8DFD /* PushyEnvironment.swift */,
 				E4B875B11F08F855006D8DFD /* PushyHTTP.swift */,
+				E477B3F027B83277001656DF /* PushyMQTT.swift */,
 				E4B875B21F08F855006D8DFD /* PushyKeychain.swift */,
 				E4B875B71F08F855006D8DFD /* PushySettings.swift */,
 				E4B875B81F08F855006D8DFD /* PushySwizzler.swift */,
@@ -335,6 +338,7 @@
 				E4B875BC1F08F855006D8DFD /* PushyHTTP.swift in Sources */,
 				E40309A32479949C00D05906 /* UDPClient.swift in Sources */,
 				E40309AB24799E8400D05906 /* PushyAPNs.swift in Sources */,
+				E477B3F127B83277001656DF /* PushyMQTT.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
