@@ -8,7 +8,7 @@ https://pushy.me/docs/ios/get-sdk
 
 For the iOS demo project, please refer to the following project:
 
-https://github.com/pushy-me/pushy-demo-ios
+https://github.com/pushy/pushy-demo-ios
 
 ## More Information
 
