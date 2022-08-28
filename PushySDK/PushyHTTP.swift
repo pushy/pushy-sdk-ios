@@ -32,9 +32,10 @@ public class PushyHTTP {
         // Fallback to default session config
         let config = URLSessionConfiguration.default
         
-        // Wait for local network access to be granted (Local Push Connectivity)
+        // Wait up to 10 seconds for local network access to be granted (Local Push Connectivity)
         if #available(iOS 11.0, *) {
             config.waitsForConnectivity = true
+            config.timeoutIntervalForResource = 10
         }
         
         // Execute request async
