@@ -15,6 +15,6 @@ s.source_files      = 'PushySDK/*.swift', 'PushySDK/SwiftSocket/*.{h,c,swift}'
 s.swift_version         = '5.0'
 s.ios.deployment_target = '9.0'
 
-s.dependency 'CocoaMQTT', '2.0.2'
+s.dependency 'CocoaMQTT', '2.0.5'
 
 end
