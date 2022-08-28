@@ -9,6 +9,7 @@
 import Foundation
 
 public class PushySettings {
+    static var pushyApns = "_pushyApns"
     static var pushyToken = "_pushyToken"
     static var apnsToken = "_pushyApnsToken"
     static var pushyTokenAuth = "_pushyTokenAuth"

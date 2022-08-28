@@ -29,8 +29,16 @@ public class PushyHTTP {
             return postCompleted(err, nil)
         }
         
+        // Fallback to default session config
+        let config = URLSessionConfiguration.default
+        
+        // Wait for local network access to be granted (Local Push Connectivity)
+        if #available(iOS 11.0, *) {
+            config.waitsForConnectivity = true
+        }
+        
         // Execute request async
-        let task = URLSession.shared.dataTask(with: request, completionHandler: {data, response, error in
+        let task = URLSession(configuration: config).dataTask(with: request, completionHandler: {data, response, error in
             // Convert response to string (for debugging)
             // var test = String(data: data!, encoding: .utf8)
             

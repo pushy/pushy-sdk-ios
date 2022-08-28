@@ -220,7 +220,12 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
                 PushySettings.setBoolean(PushySettings.pushyLocalPushConnectivity, true)
                 
                 // Print active status
-                print("NEAppPushManager.isActive: \(pushManager.isActive)")
+                print("Successfully configured Local Push Connectivity")
+                
+                // Wait 10 seconds and print NEAppPushManager status
+                DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+                    print("NEAppPushManager.isActive: \(pushManager.isActive)")
+                }
             })
         }
     }

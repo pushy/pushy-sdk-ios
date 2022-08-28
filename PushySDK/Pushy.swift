@@ -59,8 +59,15 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     // Display in-app notification banners (iOS 10+) and invoke notification handler
     @available(iOS 10.0, *)
     public func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // Call the notification handler, if defined
-        invokeNotificationHandler(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
+        // Avoid invoking handler and displaying banner twice for same payload
+        if (isDuplicateNotification(notification.request.content.userInfo)) {
+            print("Ignoring duplicate notification")
+            completionHandler([])
+            return
+        }
+        
+        // Call the incoming notification handler
+        Pushy.shared?.notificationHandler?(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
         
         // Show in-app banner (no sound or badge)
         completionHandler([.alert])
@@ -130,18 +137,20 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
                     return
                 }
                 
-                // Back to main thread, register with APNs
-                DispatchQueue.main.async {
-                    application.registerForRemoteNotifications()
+                // APNs enabled? (defaults to true)
+                if (PushySettings.getBoolean(PushySettings.pushyApns, true)) {
+                    // Back to main thread, register with APNs
+                    DispatchQueue.main.async {
+                        application.registerForRemoteNotifications()
+                    }
+                }
+                else {
+                    // No APNs (Local Push Connectivity only, iOS 14+)
+                    Pushy.shared?.registerPushyDevice(apnsToken: nil)
                 }
             }
         }
-            // iOS 9 support
-        else if #available(iOS 9, *) {
-            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
-            UIApplication.shared.registerForRemoteNotifications()
-        }
-            // iOS 8 support
+            // iOS 8 & 9 support
         else if #available(iOS 8, *) {
             UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
             UIApplication.shared.registerForRemoteNotifications()
@@ -162,7 +171,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Converts an APNs token to Pushy device token
-    private func registerPushyDevice(apnsToken: String) {
+    private func registerPushyDevice(apnsToken: String?) {
         // Attempt to fetch persisted Pushy token
         let token = PushySettings.getString(PushySettings.pushyToken)
         
@@ -186,6 +195,13 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
                 return self.createNewDevice(apnsToken)
             }
             
+            // If APNs disabled, no need to keep track of token changes
+            if (!PushySettings.getBoolean(PushySettings.pushyApns, true)) {
+                // Registration success
+                self.registrationHandler?(nil, token!)
+            }
+            
+            // Check if APNs token changed
             // Get previously-stored APNs token
             if let previousApnsToken = PushySettings.getString(PushySettings.apnsToken) {
                 // Token changed?
@@ -206,7 +222,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Register a new Pushy device
-    private func createNewDevice(_ apnsToken:String) {
+    private func createNewDevice(_ apnsToken:String?) {
         // Fetch app bundle ID
         let bundleId = Bundle.main.bundleIdentifier
         
@@ -223,7 +239,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         let pushEnvironment = PushyEnvironment.getEnvironmentString()
         
         // Prepare /register API post data
-        var params: [String:Any] = ["platform": "ios", "pushToken": apnsToken, "pushEnvironment": pushEnvironment, "pushBundle": appBundleId ]
+        var params: [String:Any] = ["platform": "ios", "pushToken": apnsToken as Any, "pushEnvironment": pushEnvironment, "pushBundle": appBundleId ]
         
         // Authenticate using Bundle ID by default
         if appId == nil {
@@ -263,9 +279,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Update remote APNs token
-    private func updateApnsToken(_ apnsToken: String) {
+    private func updateApnsToken(_ newApnsToken: String?) {
         // Load device token & auth
-        guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
+        guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth), let apnsToken = newApnsToken else {
             return
         }
         
@@ -542,6 +558,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySettings.setBoolean(PushySettings.pushyInAppBanner, value)
     }
     
+    // Support for toggling APNs (defaults to on)
+    @objc public func toggleAPNs(_ value: Bool) {
+        PushySettings.setBoolean(PushySettings.pushyApns, value)
+    }
+    
     // Support for toggling AppDelegate method swizzling (defaults to on)
     @objc public func toggleMethodSwizzling(_ value: Bool) {
         PushySettings.setBoolean(PushySettings.pushyMethodSwizzling, value)
@@ -597,7 +618,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             Pushy.shared?.notificationClickListener?(userInfo)
         } else {
             // Call the incoming notification handler
-            invokeNotificationHandler(userInfo, {(UIBackgroundFetchResult) in})
+            Pushy.shared?.invokeNotificationHandler(userInfo, {(UIBackgroundFetchResult) in})
         }
     }
     
@@ -612,7 +633,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             completionHandler(UIBackgroundFetchResult.newData)
         } else {
             // Call the incoming notification handler
-            invokeNotificationHandler(userInfo, completionHandler)
+            Pushy.shared?.invokeNotificationHandler(userInfo, completionHandler)
         }
     }
 }
