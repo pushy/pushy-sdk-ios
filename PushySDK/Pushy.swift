@@ -83,6 +83,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Register for push notifications (called from AppDelegate.didFinishLaunchingWithOptions)
+    @available(iOSApplicationExtension, unavailable)
     @objc public func register(_ registrationHandler: @escaping (Error?, String) -> Void) {
         // Save the handler for later
         self.registrationHandler = registrationHandler
@@ -110,6 +111,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Backwards-compatible method for requesting an APNs token from Apple
+    @available(iOSApplicationExtension, unavailable)
     private func requestAPNsToken(_ application: UIApplication) {
         // iOS 10+ support
         if #available(iOS 10, *) {
@@ -546,6 +548,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Device registration check
+    @available(iOSApplicationExtension, unavailable)
     @objc public func isRegistered() -> Bool {
         // Check if APNs is registered
         if !UIApplication.shared.isRegisteredForRemoteNotifications {
