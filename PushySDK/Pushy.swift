@@ -45,7 +45,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // In-app notification banner support (iOS 10+, defaults to off)
         // Set delegate to hook into userNotificationCenter callbacks
-        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false), PushySettings.getBoolean(PushySettings.pushyMethodSwizzling, true) {
+        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
             UNUserNotificationCenter.current().delegate = self
         }
     }
