@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name              = 'Pushy'
-s.version           = '1.0.38' # Also update sdkVersionCode in PushyConfig.swift
+s.version           = '1.0.39' # Also update sdkVersionCode in PushyConfig.swift
 s.summary           = 'The official Pushy SDK for native iOS apps.'
 s.description       = 'Pushy is the most reliable push notification gateway, perfect for real-time, mission-critical applications.'
 s.homepage          = 'https://pushy.me/'
