@@ -117,6 +117,12 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         })
     }
     
+    // Unregister from push notifications
+    @objc public func unregister() {
+        // Clear backend-persisted APNs token
+        self.updateApnsToken(nil)
+    }
+    
     // Backwards-compatible method for requesting an APNs token from Apple
     @available(iOSApplicationExtension, unavailable)
     private func requestAPNsToken(_ application: UIApplication) {
@@ -279,9 +285,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Update remote APNs token
-    private func updateApnsToken(_ newApnsToken: String?) {
+    private func updateApnsToken(_ apnsToken: String?) {
         // Load device token & auth
-        guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth), let apnsToken = newApnsToken else {
+        guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
             return
         }
         
@@ -583,6 +589,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // Check if Pushy device token is assigned to current app instance
         if (PushySettings.getString(PushySettings.pushyToken, userDefaultsOnly: true) == nil) {
+            return false
+        }
+        
+        // Check if Pushy.unregister() was called and APNs token was cleared
+        if (PushySettings.getString(PushySettings.apnsToken) == nil) {
             return false
         }
         
