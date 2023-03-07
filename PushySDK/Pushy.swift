@@ -205,6 +205,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             if (!PushySettings.getBoolean(PushySettings.pushyApns, true)) {
                 // Registration success
                 self.registrationHandler?(nil, token!)
+                return
             }
             
             // Check if APNs token changed
