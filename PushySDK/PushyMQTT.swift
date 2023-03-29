@@ -149,7 +149,7 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
         }
         
         // Set badge if passed in
-        if let badge = payload["badge"] as? Integer {
+        if let badge = payload["badge"] as? Int {
             UIApplication.shared.applicationIconBadgeNumber = badge
         }
     }
