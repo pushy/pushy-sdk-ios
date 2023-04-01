@@ -131,6 +131,11 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
             content.body = message
         }
         
+        // Set badge if passed in
+        if let badge = payload["badge"] as? Int {
+            content.badge = badge
+        }
+        
         // Set default sound
         content.sound = .default
         
@@ -146,11 +151,6 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
             if let error = error {
                 NSLog("PushyMQTT: Error posting local notification: \(error)")
             }
-        }
-        
-        // Set badge if passed in
-        if let badge = payload["badge"] as? Int {
-            UIApplication.shared.applicationIconBadgeNumber = badge
         }
     }
     
