@@ -133,7 +133,7 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
         
         // Set badge if passed in
         if let badge = payload["badge"] as? Int {
-            content.badge = badge
+            content.badge = NSNumber(integer: badge)
         }
         
         // Set default sound
