@@ -616,6 +616,12 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         return enterpriseApiEndpoint!
     }
     
+    // APNs token getter function
+    @objc public func getApnsToken() -> String? {
+        // Return stored APNs token (may be nil if called before successful invocation of pushy.register())
+        return PushySettings.getString(PushySettings.apnsToken)
+    }
+    
     // APNs failed to register the device for push notifications
     @objc public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         // Call the registration handler, if defined (pass empty string as token)
