@@ -617,7 +617,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // APNs token getter function
-    @objc public func getApnsToken() -> String? {
+    @objc public func getAPNsToken() -> String? {
         // Return stored APNs token (may be nil if called before successful invocation of pushy.register())
         return PushySettings.getString(PushySettings.apnsToken)
     }
