@@ -533,6 +533,25 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySettings.setString(PushySettings.pushyEnterpriseApi, endpoint)
     }
     
+    // Support for static IP config / proxy endpoint
+    @objc public func setProxyEndpoint(proxyEndpoint: String?) {
+        // If nil, clear persisted proxy endpoint
+        if (proxyEndpoint == nil) {
+            return PushySettings.setString(PushySettings.pushyProxyEndpoint, nil)
+        }
+        
+        // Mutable variable
+        var endpoint = proxyEndpoint!
+        
+        // Strip trailing slash
+        if endpoint.hasSuffix("/") {
+            endpoint = String(endpoint.prefix(endpoint.count - 1))
+        }
+        
+        // Persist proxy endpoint
+        PushySettings.setString(PushySettings.pushyProxyEndpoint, endpoint)
+    }
+    
     // Support for Pushy App ID authentication instead of Bundle ID-based auth
     @objc public func setAppId(_ appId: String?) {
         // Fetch previous App ID
@@ -604,16 +623,24 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     
     // API endpoint getter function
     @objc public func getApiEndpoint() -> String {
+        // Check for a configured proxy endpoint
+        let proxyEndpoint = PushySettings.getString(PushySettings.pushyProxyEndpoint)
+        
+        // Return proxy endpoint if not nil
+        if proxyEndpoint != nil {
+            return "https://" + proxyEndpoint!
+        }
+    
         // Check for a configured enterprise API endpoint
         let enterpriseApiEndpoint = PushySettings.getString(PushySettings.pushyEnterpriseApi)
         
-        // Default to public Pushy API if missing
-        if enterpriseApiEndpoint == nil {
-            return PushyConfig.apiBaseUrl
+        // Return enterprise endpoint if not nil
+        if enterpriseApiEndpoint != nil {
+            return enterpriseApiEndpoint!
         }
         
-        // Return enterprise endpoint
-        return enterpriseApiEndpoint!
+        // Default to public Pushy API endpoint if both proxy and enterprise endpoints are nil
+        return PushyConfig.apiBaseUrl
     }
     
     // APNs token getter function

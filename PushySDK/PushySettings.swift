@@ -15,6 +15,7 @@ public class PushySettings {
     static var pushyTokenAuth = "_pushyTokenAuth"
     static var pushyAppId = "_pushyAppId"
     static var pushyEnterpriseApi = "_pushyEnterpriseApi"
+    static var pushyProxyEndpoint = "_pushyProxyEndpoint"
     static var pushyInAppBanner = "_pushyInAppBanner"
     static var pushyMethodSwizzling = "_pushyMethodSwizzling"
     static var pushyLocalPushConnectivity = "_pushyLocalPushConnectivity"
