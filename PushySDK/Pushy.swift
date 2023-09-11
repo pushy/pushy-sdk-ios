@@ -589,6 +589,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySettings.setBoolean(PushySettings.pushyApns, value)
     }
     
+    // Support for toggling APNs connectivity check (defaults to on)
+    @objc public func toggleAPNsConnectivityCheck(_ value: Bool) {
+        PushySettings.setBoolean(PushySettings.pushyApnsConnectivityCheck, value)
+    }
+    
     // Support for toggling AppDelegate method swizzling (defaults to on)
     @objc public func toggleMethodSwizzling(_ value: Bool) {
         PushySettings.setBoolean(PushySettings.pushyMethodSwizzling, value)

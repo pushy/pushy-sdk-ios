@@ -19,7 +19,8 @@ public class PushySettings {
     static var pushyInAppBanner = "_pushyInAppBanner"
     static var pushyMethodSwizzling = "_pushyMethodSwizzling"
     static var pushyLocalPushConnectivity = "_pushyLocalPushConnectivity"
-    
+    static var pushyApnsConnectivityCheck = "_pushyApnsConnectivityCheck"
+
     // Cross-reinstall key-value store
     static var keychain = Keychain()
     
