@@ -21,12 +21,18 @@ let package = Package(
       name: "Pushy",
       dependencies: ["CSwiftSocket"],
       path: "PushySDK",
-      exclude: cSwiftSocketPaths
+      exclude: cSwiftSocketPaths,
+      resources: [
+        .process("Resources/PrivacyInfo.xcprivacy")
+      ]
     ),
     .target(
       name: "CSwiftSocket",
       path: "PushySDK",
-      sources: cSwiftSocketPaths
+      sources: cSwiftSocketPaths,
+      resources: [
+        .process("Resources/PrivacyInfo.xcprivacy")
+      ]
     )
   ]
 )

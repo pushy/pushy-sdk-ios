@@ -17,4 +17,9 @@ s.ios.deployment_target = '9.0'
 
 s.dependency 'CocoaMQTT', '2.1.0'
 
+# Apple Privacy Manifest
+s.resource_bundle = {
+    "Pushy_Privacy" => "Resources/PrivacyInfo.xcprivacy"
+}
+
 end
