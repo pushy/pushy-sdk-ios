@@ -17,7 +17,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     private var notificationClickListener: (([AnyHashable : Any]) -> Void)?
-    private var notificationOptions: UNAuthorizationOptions?
+    private var notificationOptions: Any?
     private var ignorePushPermissionDenial: Bool = false
     
     @objc public init(_ application: UIApplication) {
@@ -134,7 +134,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             
             // Custom options passed in?
             if let customOptions = notificationOptions {
-                options = customOptions
+                options = customOptions as! UNAuthorizationOptions
             }
             
             // Request authorization (show push dialog)
