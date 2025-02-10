@@ -155,6 +155,7 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
     }
     
     // Configure an NEAppPushManager to enable Local Push Connectivity for the specified Wi-Fi SSIDs
+    @objc
     public static func setLocalPushConnectivityConfig(endpoint: String?, port: NSNumber?, keepAlive: NSNumber?, ssids: [String]?) {
         // Ensure device is registered and load token & auth
         guard let pushyToken = PushySettings.getString(PushySettings.pushyToken), let pushyTokenAuth = PushySettings.getString(PushySettings.pushyTokenAuth) else {
