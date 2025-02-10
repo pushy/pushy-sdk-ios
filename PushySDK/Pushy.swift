@@ -17,7 +17,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     private var notificationClickListener: (([AnyHashable : Any]) -> Void)?
-    private var notificationOptions: Any?
+    private var notificationOptions: UNAuthorizationOptions?
     private var ignorePushPermissionDenial: Bool = false
     
     @objc public init(_ application: UIApplication) {
@@ -84,7 +84,8 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Make it possible to pass in custom iOS 10+ notification options ([.badge, .sound, .alert, ...])
-    @objc public func setCustomNotificationOptions(_ options:Any) {
+    @available(iOS 10.0, *)
+    @objc public func setCustomNotificationOptions(_ options:UNAuthorizationOptions) {
         // Save the options for later
         self.notificationOptions = options
     }
@@ -133,7 +134,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             
             // Custom options passed in?
             if let customOptions = notificationOptions {
-                options = customOptions as! UNAuthorizationOptions
+                options = customOptions
             }
             
             // Request authorization (show push dialog)
