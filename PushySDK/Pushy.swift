@@ -307,7 +307,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         }
         
         // Prepare request params
-        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "pushToken": apnsToken!, "pushEnvironment": pushEnvironment, "pushBundle": appBundleId]
+        let params: [String:Any] = ["token": pushyToken, "auth": pushyTokenAuth, "pushToken": apnsToken ?? nil, "pushEnvironment": pushEnvironment, "pushBundle": appBundleId]
         
         // Execute post request
         PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/token", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
