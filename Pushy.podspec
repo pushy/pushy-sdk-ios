@@ -15,8 +15,6 @@ s.source_files      = 'PushySDK/*.swift', 'PushySDK/SwiftSocket/*.{h,c,swift}'
 s.swift_version         = '5.0'
 s.ios.deployment_target = '9.0'
 
-s.dependency 'CocoaMQTT', '2.1.0'
-
 # Apple Privacy Manifest
 s.resource_bundle = {
     "Pushy_Privacy" => "Resources/PrivacyInfo.xcprivacy"
