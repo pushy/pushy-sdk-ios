@@ -152,6 +152,13 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
                 NSLog("PushyMQTT: Error posting local notification: \(error)")
             }
         }
+        
+        // Call the incoming notification handler, if defined
+        onNotificationReceived(payload);
+    }
+    
+    open func onNotificationReceived(_ payload: [AnyHashable : Any]) {
+        // Empty by default
     }
     
     // Configure an NEAppPushManager to enable Local Push Connectivity for the specified Wi-Fi SSIDs
