@@ -107,8 +107,8 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
                 // Decode UTF-8 string into JSON
                 let payload = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
                 
-                // Dispatch local notification & invoke notification handler if app running
-                displayLocalNotification(payload)
+                // Call the incoming notification handler
+                onNotificationReceived(payload);
             }
             catch {
                 // Print JSON parse error to console
@@ -117,7 +117,7 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
         }
     }
     
-    func displayLocalNotification(_ payload: [AnyHashable : Any]) {
+    open func onNotificationReceived(_ payload: [AnyHashable : Any]) {
         // Create a content object
         let content = UNMutableNotificationContent()
         
@@ -152,13 +152,6 @@ open class PushyMQTT: NEAppPushProvider, CocoaMQTTDelegate {
                 NSLog("PushyMQTT: Error posting local notification: \(error)")
             }
         }
-        
-        // Call the incoming notification handler, if defined
-        onNotificationReceived(payload);
-    }
-    
-    open func onNotificationReceived(_ payload: [AnyHashable : Any]) {
-        // Empty by default
     }
     
     // Configure an NEAppPushManager to enable Local Push Connectivity for the specified Wi-Fi SSIDs
