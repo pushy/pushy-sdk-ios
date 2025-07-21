@@ -43,9 +43,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didReceiveRemoteNotification:")
         PushySwizzler.swizzleMethodImplementations(type(of: self.appDelegate), "application:didReceiveRemoteNotification:fetchCompletionHandler:")
         
-        // In-app notification banner support (iOS 10+, defaults to off)
+        // In-app notification banner support (iOS 10+)
         // Set delegate to hook into userNotificationCenter callbacks
-        if #available(iOS 10.0, *), PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
+        if #available(iOS 10.0, *) {
             UNUserNotificationCenter.current().delegate = self
         }
     }
@@ -66,8 +66,20 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             return
         }
         
-        // Call the incoming notification handler
-        Pushy.shared?.notificationHandler?(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
+        // Not an in-app notification which was dispatched from Flutter?
+        if (notification.request.content.userInfo["_pushyInAppNotification"] == nil) {
+            // Call the incoming notification handler
+            Pushy.shared?.notificationHandler?(notification.request.content.userInfo, {(UIBackgroundFetchResult) in})
+        }
+        
+        // In-app banners disabled?
+        if !PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
+            // Not an in-app notification?
+            if (notification.request.content.userInfo["_pushyInAppNotification"] == nil) {
+                completionHandler([])
+                return
+            }
+        }
         
         // Show in-app banner (with sound, no badge)
         completionHandler([.alert, .sound])
@@ -481,6 +493,11 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     private func isDuplicateNotification(_ payload: [AnyHashable : Any]) -> Bool {
         // Skip this check if iOS 14 Local Push Connectivity has not been configured
         if (!PushySettings.getBoolean(PushySettings.pushyLocalPushConnectivity, false)) {
+            return false
+        }
+        
+        // Skip check for in-app notifications (Flutter only)
+        if payload["_pushyInAppNotification"] != nil {
             return false
         }
         
