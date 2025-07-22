@@ -74,10 +74,20 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // In-app banners disabled?
         if !PushySettings.getBoolean(PushySettings.pushyInAppBanner, false) {
-            // Not an in-app notification?
-            if (notification.request.content.userInfo["_pushyInAppNotification"] == nil) {
-                completionHandler([])
-                return
+            // Using iOS Local Push Connectivity?
+            if (PushySettings.getBoolean(PushySettings.pushyLocalPushConnectivity, false)) {
+                // Check for _pushyId, otherwise, it could be a flutter_local_notification, don't block those
+                if (notification.request.content.userInfo["_pushyId"] != nil && notification.request.content.userInfo["_pushyInAppNotification"] == nil) {
+                    completionHandler([])
+                    return
+                }
+            }
+            else {
+                // Not a Flutter-issued in-app notification?
+                if (notification.request.content.userInfo["_pushyInAppNotification"] == nil) {
+                    completionHandler([])
+                    return
+                }
             }
         }
         
