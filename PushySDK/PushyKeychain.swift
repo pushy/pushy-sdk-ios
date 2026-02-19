@@ -154,7 +154,7 @@ public struct AuthenticationPolicy: OptionSet {
      have to be available or enrolled. Item is still accessible by Touch ID
      even if fingers are added or removed.
      */
-    @available(iOS 8.0, OSX 10.10, *)
+    @MainActor @available(iOS 8.0, OSX 10.10, *)
     @available(watchOS, unavailable)
     public static let userPresence = AuthenticationPolicy(rawValue: 1 << 0)
     
@@ -163,7 +163,7 @@ public struct AuthenticationPolicy: OptionSet {
      at least one finger must be enrolled. Item is still accessible by
      Touch ID even if fingers are added or removed.
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let touchIDAny = AuthenticationPolicy(rawValue: 1 << 1)
@@ -173,7 +173,7 @@ public struct AuthenticationPolicy: OptionSet {
      Touch ID must be available and at least one finger must be enrolled.
      When fingers are added or removed, the item is invalidated.
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let touchIDCurrentSet = AuthenticationPolicy(rawValue: 1 << 3)
@@ -181,7 +181,7 @@ public struct AuthenticationPolicy: OptionSet {
     /**
      Constraint: Device passcode
      */
-    @available(iOS 9.0, OSX 10.11, *)
+    @MainActor @available(iOS 9.0, OSX 10.11, *)
     @available(watchOS, unavailable)
     public static let devicePasscode = AuthenticationPolicy(rawValue: 1 << 4)
     
@@ -189,7 +189,7 @@ public struct AuthenticationPolicy: OptionSet {
      Constraint logic operation: when using more than one constraint,
      at least one of them must be satisfied.
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let or = AuthenticationPolicy(rawValue: 1 << 14)
@@ -198,7 +198,7 @@ public struct AuthenticationPolicy: OptionSet {
      Constraint logic operation: when using more than one constraint,
      all must be satisfied.
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let and = AuthenticationPolicy(rawValue: 1 << 15)
@@ -206,7 +206,7 @@ public struct AuthenticationPolicy: OptionSet {
     /**
      Create access control for private key operations (i.e. sign operation)
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let privateKeyUsage = AuthenticationPolicy(rawValue: 1 << 30)
@@ -215,7 +215,7 @@ public struct AuthenticationPolicy: OptionSet {
      Security: Application provided password for data encryption key generation.
      This is not a constraint but additional item encryption mechanism.
      */
-    @available(iOS 9.0, *)
+    @MainActor @available(iOS 9.0, *)
     @available(OSX, unavailable)
     @available(watchOS, unavailable)
     public static let applicationPassword = AuthenticationPolicy(rawValue: 1 << 31)
@@ -599,9 +599,16 @@ public final class Keychain {
             options.attributes.forEach { attributes.updateValue($1, forKey: $0) }
             
             #if os(iOS)
-                if status == errSecInteractionNotAllowed && floor(NSFoundationVersionNumber) <= floor(NSFoundationVersionNumber_iOS_8_0) {
-                    try remove(key)
-                    try set(value, key: key)
+                if status == errSecInteractionNotAllowed {
+                    if #unavailable(iOS 9) {
+                        try remove(key)
+                        try set(value, key: key)
+                    } else {
+                        status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+                        if status != errSecSuccess {
+                            throw securityError(status: status)
+                        }
+                    }
                 } else {
                     status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
                     if status != errSecSuccess {
@@ -1084,12 +1091,24 @@ private let AttributeAuthenticationType = String(kSecAttrAuthenticationType)
 private let AttributePort = String(kSecAttrPort)
 private let AttributePath = String(kSecAttrPath)
 
-private let SynchronizableAny = kSecAttrSynchronizableAny
 
 /** Search Constants */
-private let MatchLimit = String(kSecMatchLimit)
-private let MatchLimitOne = kSecMatchLimitOne
-private let MatchLimitAll = kSecMatchLimitAll
+private var SynchronizableAny: String {
+    String(kSecAttrSynchronizableAny)
+}
+
+/** Search Constants */
+private var MatchLimit: String {
+    String(kSecMatchLimit)
+}
+
+private var MatchLimitOne: String {
+    String(kSecMatchLimitOne)
+}
+
+private var MatchLimitAll: String {
+    String(kSecMatchLimitAll)
+}
 
 /** Return Type Key Constants */
 private let ReturnData = String(kSecReturnData)

@@ -9,20 +9,20 @@
 import Foundation
 
 public class PushySettings {
-    static var pushyApns = "_pushyApns"
-    static var pushyToken = "_pushyToken"
-    static var apnsToken = "_pushyApnsToken"
-    static var pushyTokenAuth = "_pushyTokenAuth"
-    static var pushyAppId = "_pushyAppId"
-    static var pushyEnterpriseApi = "_pushyEnterpriseApi"
-    static var pushyProxyEndpoint = "_pushyProxyEndpoint"
-    static var pushyInAppBanner = "_pushyInAppBanner"
-    static var pushyMethodSwizzling = "_pushyMethodSwizzling"
-    static var pushyLocalPushConnectivity = "_pushyLocalPushConnectivity"
-    static var pushyApnsConnectivityCheck = "_pushyApnsConnectivityCheck"
+    static let pushyApns = "_pushyApns"
+    static let pushyToken = "_pushyToken"
+    static let apnsToken = "_pushyApnsToken"
+    static let pushyTokenAuth = "_pushyTokenAuth"
+    static let pushyAppId = "_pushyAppId"
+    static let pushyEnterpriseApi = "_pushyEnterpriseApi"
+    static let pushyProxyEndpoint = "_pushyProxyEndpoint"
+    static let pushyInAppBanner = "_pushyInAppBanner"
+    static let pushyMethodSwizzling = "_pushyMethodSwizzling"
+    static let pushyLocalPushConnectivity = "_pushyLocalPushConnectivity"
+    static let pushyApnsConnectivityCheck = "_pushyApnsConnectivityCheck"
 
     // Cross-reinstall key-value store
-    static var keychain = Keychain()
+    nonisolated(unsafe) static let keychain = Keychain()
     
     class func getString(_ key: String, userDefaultsOnly: Bool = false) -> String? {
         // Fetch value from Keychain

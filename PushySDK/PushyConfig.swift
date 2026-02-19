@@ -10,8 +10,8 @@ import Foundation
 
 public class PushyConfig {
     // API hostname 
-    static var apiBaseUrl = "https://api.pushy.me"
+    static let apiBaseUrl = "https://api.pushy.me"
     
     // SDK version code
-    static var sdkVersionCode = 1063;
+    static let sdkVersionCode = 1063;
 }

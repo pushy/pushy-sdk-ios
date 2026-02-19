@@ -21,6 +21,7 @@ class PushyAPNs : NSObject {
     // APNs courier connection timeout
     static let apnsCourierTimeoutSeconds = 10
     
+    @MainActor
     static public func checkConnectivity(_ callback: @escaping (Error?) -> Void) {
         // Developed disabled APNs or connectivity check?
         if (!PushySettings.getBoolean(PushySettings.pushyApns, true) || !PushySettings.getBoolean(PushySettings.pushyApnsConnectivityCheck, true)) {

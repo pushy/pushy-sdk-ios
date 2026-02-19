@@ -10,16 +10,17 @@ import UIKit
 import UserNotifications
 
 public class Pushy : NSObject, UNUserNotificationCenterDelegate {
-    public static var shared: Pushy?
+    nonisolated(unsafe) public static var shared: Pushy?
     
     private var appDelegate: UIApplicationDelegate
     private var application: UIApplication
-    private var registrationHandler: ((Error?, String) -> Void)?
+    @MainActor private var registrationHandler: ((Error?, String) -> Void)?
     private var notificationHandler: (([AnyHashable : Any], @escaping ((UIBackgroundFetchResult) -> Void)) -> Void)?
     private var notificationClickListener: (([AnyHashable : Any]) -> Void)?
     private var notificationOptions: Any?
     private var ignorePushPermissionDenial: Bool = false
     
+    @MainActor
     @objc public init(_ application: UIApplication) {
         // Store application and app delegate for later
         self.application = application
@@ -113,6 +114,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Register for push notifications (called from AppDelegate.didFinishLaunchingWithOptions)
+    @MainActor
     @available(iOSApplicationExtension, unavailable)
     @objc public func register(_ registrationHandler: @escaping (Error?, String) -> Void) {
         // Save the handler for later
@@ -161,32 +163,35 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             
             // Request authorization (show push dialog)
             UNUserNotificationCenter.current().requestAuthorization(options:options){ (granted, error) in
-                // Show error if user didn't grant permission
-                if !granted && !self.ignorePushPermissionDenial { Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
-                    return
-                }
-                
-                // APNs enabled? (defaults to true)
-                if (PushySettings.getBoolean(PushySettings.pushyApns, true)) {
-                    // Back to main thread, register with APNs
                     DispatchQueue.main.async {
+                    // Show error if user didn't grant permission
+                        if !granted && !(Pushy.shared?.ignorePushPermissionDenial ?? false) { Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please enable push notifications for this app in the iOS settings.", "PUSH_PERMISSION_DENIED"), "")
+                        return
+                    }
+                    // APNs enabled? (defaults to true)
+                    if (PushySettings.getBoolean(PushySettings.pushyApns, true)) {
+                        // Register with APNs
                         application.registerForRemoteNotifications()
                     }
-                }
-                else {
-                    // No APNs (Local Push Connectivity only, iOS 14+)
-                    Pushy.shared?.registerPushyDevice(apnsToken: nil)
+                    else {
+                        // No APNs (Local Push Connectivity only, iOS 14+)
+                        Pushy.shared?.registerPushyDevice(apnsToken: nil)
+                    }
                 }
             }
         }
-            // iOS 8 & 9 support
+        // iOS 8 & 9 support
         else if #available(iOS 8, *) {
-            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
-            UIApplication.shared.registerForRemoteNotifications()
+            DispatchQueue.main.async {
+                UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
+                UIApplication.shared.registerForRemoteNotifications()
+            }
         }
-            // iOS 7 support
+        // iOS 7 support
         else {
-            application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
+            DispatchQueue.main.async {
+                application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
+            }
         }
     }
     
@@ -215,7 +220,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         validateCredentials({ (error, credentialsValid) in
             // Handle validation errors
             if error != nil {
-                self.registrationHandler?(error, "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(error, "")
+                }
                 return
             }
             
@@ -228,7 +235,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             // If APNs disabled, no need to keep track of token changes
             if (!PushySettings.getBoolean(PushySettings.pushyApns, true)) {
                 // Registration success
-                self.registrationHandler?(nil, token!)
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(nil, token!)
+                }
                 return
             }
             
@@ -242,7 +251,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
                 }
                 
                 // APNs token didn't change
-                self.registrationHandler?(nil, token!)
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(nil, token!)
+                }
             }
             else {
                 // Failed to load previously-stored APNs token,
@@ -259,7 +270,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // Bundle ID fetch failed?
         guard let appBundleId = bundleId else {
-            registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
+            DispatchQueue.main.async {
+                Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
+            }
             return
         }
         
@@ -285,13 +298,17 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushyHTTP.postAsync(self.getApiEndpoint() + "/register", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
-                self.registrationHandler?(err, "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(err, "")
+                }
                 return
             }
             
             // Unwrap response json
             guard let json = response else {
-                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered.", "INVALID_JSON_RESPONSE"), "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered.", "INVALID_JSON_RESPONSE"), "")
+                }
                 return
             }
             
@@ -305,7 +322,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             PushySettings.setString(PushySettings.pushyTokenAuth, deviceAuth)
             
             // All done
-            self.registrationHandler?(nil, deviceToken)
+            DispatchQueue.main.async {
+                Pushy.shared?.registrationHandler?(nil, deviceToken)
+            }
         }
     }
     
@@ -324,7 +343,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         
         // Bundle ID fetch failed?
         guard let appBundleId = bundleId else {
-            self.registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
+            DispatchQueue.main.async {
+                Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("Please configure a Bundle ID for your app to use Pushy.", "MISSING_BUNDLE_ID"), "")
+            }
             return
         }
         
@@ -335,13 +356,17 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         PushyHTTP.postAsync(self.getApiEndpoint() + "/devices/token", params: params) { (err: Error?, response: [String:AnyObject]?) -> () in
             // JSON parse error?
             if err != nil {
-                self.registrationHandler?(err, "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(err, "")
+                }
                 return
             }
             
             // Unwrap json
             guard let json = response else {
-                self.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered when updating the push token.", "INVALID_JSON_RESPONSE"), "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("An invalid response was encountered when updating the push token.", "INVALID_JSON_RESPONSE"), "")
+                }
                 return
             }
             
@@ -350,7 +375,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             
             // Verify success
             if !success {
-                self.registrationHandler?(PushyRegistrationException.Error("An unsuccessful response was encountered when updating the push token.", "UNSUCCESSFUL_RESPONSE"), "")
+                DispatchQueue.main.async {
+                    Pushy.shared?.registrationHandler?(PushyRegistrationException.Error("An unsuccessful response was encountered when updating the push token.", "UNSUCCESSFUL_RESPONSE"), "")
+                }
                 return
             }
             
@@ -358,7 +385,9 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
             PushySettings.setString(PushySettings.apnsToken, apnsToken)
             
             // Done updating APNS token
-            self.registrationHandler?(nil, pushyToken)
+            DispatchQueue.main.async {
+                Pushy.shared?.registrationHandler?(nil, pushyToken)
+            }
         }
     }
     
@@ -629,6 +658,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Device registration check
+    @MainActor
     @available(iOSApplicationExtension, unavailable)
     @objc public func isRegistered() -> Bool {
         // Check if APNs is registered
@@ -685,11 +715,14 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     
     // APNs failed to register the device for push notifications
     @objc public func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        // Call the registration handler, if defined (pass empty string as token)
-        Pushy.shared?.registrationHandler?(error, "")
+        DispatchQueue.main.async {
+            // Call the registration handler, if defined (pass empty string as token)
+            Pushy.shared?.registrationHandler?(error, "")
+        }
     }
     
     // Device received notification (legacy callback)
+    @MainActor
     @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) {
         // App opened from notification and click listener defined?
         if (application.applicationState == UIApplication.State.inactive && Pushy.shared?.notificationClickListener != nil) {
@@ -702,6 +735,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
     }
     
     // Device received notification (new callback with completionHandler)
+    @MainActor
     @objc public func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         // App opened from notification and click listener defined?
         if (application.applicationState == UIApplication.State.inactive && Pushy.shared?.notificationClickListener != nil) {
