@@ -22,7 +22,7 @@ class PushyAPNs : NSObject {
     static let apnsCourierTimeoutSeconds = 10
     
     @MainActor
-    static public func checkConnectivity(_ callback: @escaping (Error?) -> Void) {
+    static public func checkConnectivity(_ callback: @escaping @MainActor @Sendable (Error?) -> Void) {
         // Developed disabled APNs or connectivity check?
         if (!PushySettings.getBoolean(PushySettings.pushyApns, true) || !PushySettings.getBoolean(PushySettings.pushyApnsConnectivityCheck, true)) {
             // Invoke callback with nil error (main thread)
@@ -34,11 +34,11 @@ class PushyAPNs : NSObject {
         // Get random courier server as integer
         let randomCourierServer = Int.random(in: apnsCourierServerRange)
         
-        // Try to establish TCP connection to APNs on port 5223
-        let client = TCPClient(address: String(randomCourierServer) + apnsCourierHostname, port: apnsCourierPort)
-        
         // Try connecting with a timeout (background thread)
         DispatchQueue.global(qos: .userInitiated).async {
+            // Try to establish TCP connection to APNs on port 5223
+            let client = TCPClient(address: String(randomCourierServer) + apnsCourierHostname, port: apnsCourierPort)
+            
             switch client.connect(timeout: apnsCourierTimeoutSeconds) {
             case .success:
                 // Close client
