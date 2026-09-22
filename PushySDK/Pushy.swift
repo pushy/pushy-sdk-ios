@@ -148,6 +148,18 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         self.updateApnsToken(nil)
     }
     
+    // Clear locally persisted device registration credentials
+    @objc public func clearDeviceCredentials() {
+        // Clear stored APNs device token
+        PushySettings.setString(PushySettings.apnsToken, nil)
+        
+        // Clear stored Pushy device token
+        PushySettings.setString(PushySettings.pushyToken, nil)
+        
+        // Clear stored Pushy device auth key
+        PushySettings.setString(PushySettings.pushyTokenAuth, nil)
+    }
+    
     // Backwards-compatible method for requesting an APNs token from Apple
     @available(iOSApplicationExtension, unavailable)
     private func requestAPNsToken(_ application: UIApplication) {
@@ -582,9 +594,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         // Check if this is a new API endpoint URL
         if endpoint != previousEndpoint {
             // Unregister device
-            PushySettings.setString(PushySettings.apnsToken, nil)
-            PushySettings.setString(PushySettings.pushyToken, nil)
-            PushySettings.setString(PushySettings.pushyTokenAuth, nil)
+            self.clearDeviceCredentials()
         }
         
         // Persist enterprise API endpoint
@@ -618,9 +628,7 @@ public class Pushy : NSObject, UNUserNotificationCenterDelegate {
         // Check if this is a new Pushy App ID
         if appId != previousAppId {
             // Unregister device
-            PushySettings.setString(PushySettings.apnsToken, nil)
-            PushySettings.setString(PushySettings.pushyToken, nil)
-            PushySettings.setString(PushySettings.pushyTokenAuth, nil)
+            self.clearDeviceCredentials()
         }
         
         // Update stored value
