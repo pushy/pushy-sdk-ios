@@ -13,5 +13,5 @@ public class PushyConfig {
     static let apiBaseUrl = "https://api.pushy.me"
     
     // SDK version code
-    static let sdkVersionCode = 1065;
+    static let sdkVersionCode = 1066;
 }
